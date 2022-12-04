@@ -13,10 +13,8 @@ export class UserRepository extends DefaultCrudRepository<
   public readonly tasks: HasManyRepositoryFactory<Task, typeof User.prototype.id>;
 
   constructor(
-    @inject('datasources.db') dataSource: DbDataSource, @repository.getter('TaskRepository') protected taskRepositoryGetter: Getter<TaskRepository>,
+    @inject('datasources.db') dataSource: DbDataSource,
   ) {
     super(User, dataSource);
-    this.tasks = this.createHasManyRepositoryFactoryFor('tasks', taskRepositoryGetter,);
-    this.registerInclusionResolver('tasks', this.tasks.inclusionResolver);
   }
 }

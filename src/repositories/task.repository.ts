@@ -13,10 +13,8 @@ export class TaskRepository extends DefaultCrudRepository<
   public readonly taskUser: BelongsToAccessor<User, typeof Task.prototype.id>;
 
   constructor(
-    @inject('datasources.db') dataSource: DbDataSource, @repository.getter('UserRepository') protected userRepositoryGetter: Getter<UserRepository>,
+    @inject('datasources.db') dataSource: DbDataSource,
   ) {
     super(Task, dataSource);
-    this.taskUser = this.createBelongsToAccessorFor('taskUser', userRepositoryGetter,);
-    this.registerInclusionResolver('taskUser', this.taskUser.inclusionResolver);
   }
 }
