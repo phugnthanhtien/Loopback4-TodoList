@@ -28,11 +28,13 @@ export class User extends Entity {
 
   @property({
     type: 'date',
+    default: new Date()
   })
   createdAt?: string;
 
   @property({
     type: 'date',
+    default: new Date()
   })
   updatedAt?: string;
 
