@@ -53,9 +53,6 @@ export class Task extends Entity {
   })
   status?: ETaskStatus;
 
-  @belongsTo(() => User, {name: 'taskUser'})
-  createdBy: string;
-
   constructor(data?: Partial<Task>) {
     super(data);
   }

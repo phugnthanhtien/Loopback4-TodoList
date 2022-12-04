@@ -42,9 +42,6 @@ export class User extends Entity {
   })
   updatedAt?: string;
 
-  @hasMany(() => Task, {keyTo: 'createdBy'})
-  tasks: Task[];
-
   constructor(data?: Partial<User>) {
     super(data);
   }
