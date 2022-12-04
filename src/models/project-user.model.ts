@@ -2,12 +2,15 @@ import {Entity, model, property} from '@loopback/repository';
 import { ERole } from '../enum';
 
 
-@model()
+@model({settings: {
+  strictObjectIDCoercion: true
+}})
 export class ProjectUser extends Entity {
   @property({
     type: 'string',
     id: true,
     generated: true,
+    mongodb: {dataType: 'ObjectId'}
   })
   id?: string;
 

@@ -1,12 +1,15 @@
 import {Entity, model, property} from '@loopback/repository';
 import { ETaskStatus } from '../enum';
 
-@model()
+@model({settings: {
+  strictObjectIDCoercion: true
+}})
 export class Task extends Entity {
   @property({
     type: 'string',
     id: true,
     generated: true,
+    mongodb: {dataType: 'ObjectId'}
   })
   id?: string;
 
