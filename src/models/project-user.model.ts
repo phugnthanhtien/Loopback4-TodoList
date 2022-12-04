@@ -14,11 +14,14 @@ export class ProjectUser extends Entity {
   })
   id?: string;
 
-  @property.array(ERole, {
+  @property({
     required: true,
-    default: ERole.USER
+    default: ERole.USER,
+    jsonSchema: {
+      enum: Object.values(ERole)
+    }
   })
-  role: ERole[];
+  role: ERole;
 
   constructor(data?: Partial<ProjectUser>) {
     super(data);

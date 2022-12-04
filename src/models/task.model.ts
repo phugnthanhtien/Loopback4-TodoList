@@ -45,10 +45,13 @@ export class Task extends Entity {
   })
   updatedAt?: string;
 
-  @property.array(ETaskStatus, {
-    default: ETaskStatus.TODO
+  @property({
+    default: ETaskStatus.TODO,
+    jsonSchema: {
+      enum: Object.values(ETaskStatus)
+    }
   })
-  status?: ETaskStatus[];
+  status?: ETaskStatus;
 
   @belongsTo(() => User, {name: 'taskUser'})
   createdBy: string;
