@@ -1,6 +1,7 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
 import { ETaskStatus } from '../enum';
 import {User} from './user.model';
+import {Project} from './project.model';
 
 @model({
   settings: {
@@ -52,6 +53,18 @@ export class Task extends Entity {
     }
   })
   status?: ETaskStatus;
+
+  @belongsTo(() => User, {name: 'creator'})
+  createdBy: string;
+
+  @belongsTo(() => Project)
+  projectId: string;
+
+  @belongsTo(() => User, {name: 'assignee'})
+  assignedTo: string;
+
+  @belongsTo(() => Task, {name: 'linked'})
+  linkedTo: string;
 
   constructor(data?: Partial<Task>) {
     super(data);

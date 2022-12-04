@@ -1,8 +1,12 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
+import {User} from './user.model';
+import {Task} from './task.model';
 
-@model({settings: {
-  strictObjectIDCoercion: true
-}})
+@model({
+  settings: {
+    strictObjectIDCoercion: true
+  }
+})
 export class Project extends Entity {
   @property({
     type: 'string',
@@ -35,6 +39,11 @@ export class Project extends Entity {
   })
   updatedAt?: string;
 
+  @belongsTo(() => User, {name: 'creator'})
+  createdBy: string;
+
+  @hasMany(() => Task)
+  tasks: Task[];
 
   constructor(data?: Partial<Project>) {
     super(data);

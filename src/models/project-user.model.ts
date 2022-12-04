@@ -1,10 +1,13 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
 import { ERole } from '../enum';
+import {User} from './user.model';
+import {Project} from './project.model';
 
-
-@model({settings: {
-  strictObjectIDCoercion: true
-}})
+@model({
+  settings: {
+    strictObjectIDCoercion: true
+  }
+})
 export class ProjectUser extends Entity {
   @property({
     type: 'string',
@@ -22,6 +25,12 @@ export class ProjectUser extends Entity {
     }
   })
   role: ERole;
+
+  @belongsTo(() => User)
+  userId: string;
+
+  @belongsTo(() => Project)
+  projectId: string;
 
   constructor(data?: Partial<ProjectUser>) {
     super(data);
