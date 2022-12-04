@@ -1,9 +1,12 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
 import { ETaskStatus } from '../enum';
+import {User} from './user.model';
 
-@model({settings: {
-  strictObjectIDCoercion: true
-}})
+@model({
+  settings: {
+    strictObjectIDCoercion: true
+  }
+})
 export class Task extends Entity {
   @property({
     type: 'string',
@@ -42,11 +45,13 @@ export class Task extends Entity {
   })
   updatedAt?: string;
 
-  @property.array(ETaskStatus,{
+  @property.array(ETaskStatus, {
     default: ETaskStatus.TODO
   })
   status?: ETaskStatus[];
 
+  @belongsTo(() => User, {name: 'taskUser'})
+  createdBy: string;
 
   constructor(data?: Partial<Task>) {
     super(data);
