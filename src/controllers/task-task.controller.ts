@@ -7,8 +7,7 @@ import {
   getModelSchemaRef,
 } from '@loopback/rest';
 import {
-  Task,
-  Task,
+  Task
 } from '../models';
 import {TaskRepository} from '../repositories';
 

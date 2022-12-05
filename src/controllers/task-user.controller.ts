@@ -33,23 +33,6 @@ export class TaskUserController {
   async getUser(
     @param.path.string('id') id: typeof Task.prototype.id,
   ): Promise<User> {
-    return this.taskRepository.creator(id);
-  }
-  @get('/tasks/{id}/assign', {
-    responses: {
-      '200': {
-        description: 'User belonging to Task',
-        content: {
-          'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(User)},
-          },
-        },
-      },
-    },
-  })
-  async getAssignee(
-    @param.path.string('id') id: typeof Task.prototype.id,
-  ): Promise<User> {
-    return this.taskRepository.assignee(id);
+    return this.taskRepository.updater(id);
   }
 }
