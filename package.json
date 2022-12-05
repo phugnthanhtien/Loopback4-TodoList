@@ -58,6 +58,7 @@
     "@loopback/rest-explorer": "^5.0.5",
     "@loopback/security": "^0.8.5",
     "@loopback/service-proxy": "^5.0.5",
+    "isemail": "^3.2.0",
     "loopback-connector-mongodb": "^5.6.0",
     "tslib": "^2.0.0"
   },

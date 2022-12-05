@@ -1,22 +1,13 @@
-import {
-  repository,
-} from '@loopback/repository';
-import {
-  param,
-  get,
-  getModelSchemaRef,
-} from '@loopback/rest';
-import {
-  Task,
-  Task,
-} from '../models';
+import {repository} from '@loopback/repository';
+import {get, getModelSchemaRef, param} from '@loopback/rest';
+import {Task} from '../models';
 import {TaskRepository} from '../repositories';
 
 export class TaskTaskController {
   constructor(
     @repository(TaskRepository)
     public taskRepository: TaskRepository,
-  ) { }
+  ) {}
 
   @get('/tasks/{id}/task', {
     responses: {
