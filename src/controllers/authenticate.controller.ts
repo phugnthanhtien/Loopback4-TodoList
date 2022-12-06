@@ -1,6 +1,6 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getJsonSchemaRef, post, requestBody} from '@loopback/rest';
+import {getJsonSchemaRef, post, requestBody} from '@loopback/rest';
 import * as _ from 'lodash';
 import {
   PasswordHasherBindings,
@@ -72,34 +72,10 @@ export class Authentication {
   async login(
     @requestBody() credentials: Credentials,
   ): Promise<{token: string}> {
-    // make sure user exist,password should be valid
     const user = await this.userService.verifyCredentials(credentials);
-    // console.log(user);
     const userProfile = await this.userService.convertToUserProfile(user);
-    // console.log(userProfile);
 
     const token = await this.jwtService.generateToken(userProfile);
     return Promise.resolve({token: token});
-  }
-
-  // @authenticate("jwt")
-  @get('/users/me', {
-    security: OPERATION_SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'The current user profile',
-        content: {
-          'application/json': {
-            schema: getJsonSchemaRef(User),
-          },
-        },
-      },
-    },
-  })
-  async me(
-    @inject(AuthenticationBindings.CURRENT_USER)
-    currentUser: UserProfile,
-  ): Promise<UserProfile> {
-    return Promise.resolve(currentUser);
   }
 }

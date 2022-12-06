@@ -37,8 +37,6 @@ export class Lb4TodolistApplication extends BootMixin(
     // Set up the custom sequence
     this.sequence(MySequence);
 
-    this.addSecuritySpec();
-
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
 
@@ -61,6 +59,7 @@ export class Lb4TodolistApplication extends BootMixin(
         nested: true,
       },
     };
+    this.addSecuritySpec();
   }
   setupBinding(): void {
     this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
@@ -78,7 +77,7 @@ export class Lb4TodolistApplication extends BootMixin(
     this.api({
       openapi: '3.0.0',
       info: {
-        title: 'test application',
+        title: 'lb4 TodoList',
         version: '1.0.0',
       },
       paths: {},
