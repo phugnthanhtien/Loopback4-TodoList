@@ -8,3 +8,6 @@ export * from './task-project.controller';
 export * from './task-task.controller';
 export * from './task-user.controller';
 export * from './user.controller';
+export * from './task.controller';
+export * from './project.controller';
+export * from './project-user.controller';

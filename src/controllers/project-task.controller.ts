@@ -1,3 +1,6 @@
+import {authenticate} from '@loopback/authentication';
+import {User} from '@loopback/authentication-jwt';
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -15,16 +18,27 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
+import {SecurityBindings} from '@loopback/security';
+import {ERole} from '../enum';
+import {Project, Task} from '../models';
 import {
-  Project,
-  Task,
-} from '../models';
-import {ProjectRepository} from '../repositories';
+  ProjectRepository,
+  ProjectUserRepository,
+  TaskRepository,
+} from '../repositories';
 
+@authenticate('jwt')
 export class ProjectTaskController {
   constructor(
-    @repository(ProjectRepository) protected projectRepository: ProjectRepository,
-  ) { }
+    @repository(ProjectRepository)
+    protected projectRepository: ProjectRepository,
+
+    @repository(ProjectUserRepository)
+    protected projectUserRepository: ProjectUserRepository,
+
+    @repository(TaskRepository)
+    protected taskRepository: TaskRepository,
+  ) {}
 
   @get('/projects/{id}/tasks', {
     responses: {
@@ -39,10 +53,24 @@ export class ProjectTaskController {
     },
   })
   async find(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: User,
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Task>,
   ): Promise<Task[]> {
-    return this.projectRepository.tasks(id).find(filter);
+    const userId: string = currentUserProfile?.id;
+    const projectUser = this.projectUserRepository.find({
+      where: {userId: {like: userId}, projectId: {like: id}},
+    });
+    const userRole = (await projectUser)[0].role;
+    if (userRole == ERole.ADMIN)
+      return this.taskRepository.find({
+        where: {projectId: {like: id}},
+      });
+    else
+      return this.taskRepository.find({
+        where: {projectId: {like: id}, isCreatedByAdmin: {like: false}},
+      });
   }
 
   @post('/projects/{id}/tasks', {
@@ -54,6 +82,8 @@ export class ProjectTaskController {
     },
   })
   async create(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: User,
     @param.path.string('id') id: typeof Project.prototype.id,
     @requestBody({
       content: {
@@ -61,11 +91,12 @@ export class ProjectTaskController {
           schema: getModelSchemaRef(Task, {
             title: 'NewTaskInProject',
             exclude: ['id'],
-            optional: ['projectId']
+            optional: ['projectId'],
           }),
         },
       },
-    }) task: Omit<Task, 'id'>,
+    })
+    task: Omit<Task, 'id'>,
   ): Promise<Task> {
     return this.projectRepository.tasks(id).create(task);
   }

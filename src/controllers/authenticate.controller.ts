@@ -40,8 +40,10 @@ export class Authentication {
     },
   })
   async signup(@requestBody() userData: User) {
-    validateCredentials(_.pick(userData, ['email', 'password']));
-    console.log(userData.password);
+    await validateCredentials(
+      _.pick(userData, ['email', 'password']),
+      this.userRepository,
+    );
     const hashedPassword = await this.hasher.hashPassword(userData.password);
     const savedUser = await this.userRepository.create({
       email: userData.email,
