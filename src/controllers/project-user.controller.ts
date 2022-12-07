@@ -29,7 +29,7 @@ export class ProjectUserController {
     public projectUserRepository: ProjectUserRepository,
   ) {}
 
-  @post('/project-users')
+  @post('/project-user')
   @response(200, {
     description: 'ProjectUser model instance',
     content: {'application/json': {schema: getModelSchemaRef(ProjectUser)}},

@@ -54,11 +54,7 @@ export class TaskController {
       },
     },
   })
-  async find(
-    @inject(SecurityBindings.USER)
-    currentUserProfile: User,
-    @param.filter(Task) filter?: Filter<Task>,
-  ): Promise<Task[]> {
+  async find(@param.filter(Task) filter?: Filter<Task>): Promise<Task[]> {
     return this.taskRepository.find(filter);
   }
 

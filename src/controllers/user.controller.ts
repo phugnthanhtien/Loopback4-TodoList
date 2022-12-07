@@ -20,6 +20,7 @@ import {
 import {User} from '../models';
 import {UserRepository} from '../repositories';
 
+//admin
 @authenticate('jwt')
 export class UserController {
   constructor(
