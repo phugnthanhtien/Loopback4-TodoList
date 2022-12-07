@@ -54,7 +54,7 @@ export class ProjectController {
       },
     })
     project: Omit<Project, 'id'>,
-  ): Promise<void> {
+  ): Promise<Project> {
     const userId: string = currentUserProfile?.id;
     project.createdBy = userId;
     project.updatedBy = userId;
@@ -65,6 +65,7 @@ export class ProjectController {
       role: ERole.ADMIN,
     };
     await this.projectUserRepository.create(newProjectUser);
+    return newProject;
   }
 
   @get('/projects/count')
