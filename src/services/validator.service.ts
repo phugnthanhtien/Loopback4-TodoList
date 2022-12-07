@@ -1,5 +1,4 @@
 import {HttpErrors} from '@loopback/rest';
-import * as isEmail from 'isemail';
 import {Task} from '../models';
 import {
   ProjectUserRepository,
@@ -12,7 +11,8 @@ export async function validateCredentials(
   credentials: Credentials,
   userRepository: UserRepository,
 ) {
-  if (!isEmail.validate(credentials.email)) {
+  const regexEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  if (!regexEmail.test(credentials.email)) {
     throw new HttpErrors.UnprocessableEntity('invalid Email');
   }
   const foundUser = await userRepository.findOne({
