@@ -1,6 +1,11 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {getJsonSchemaRef, post, requestBody} from '@loopback/rest';
+import {
+  getJsonSchemaRef,
+  getModelSchemaRef,
+  post,
+  requestBody,
+} from '@loopback/rest';
 import * as _ from 'lodash';
 import {
   PasswordHasherBindings,
@@ -39,7 +44,19 @@ export class Authentication {
       },
     },
   })
-  async signup(@requestBody() userData: User) {
+  async signup(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(User, {
+            title: 'New User',
+            exclude: ['id', 'createdAt', 'updatedAt'],
+          }),
+        },
+      },
+    })
+    userData: Omit<User, 'id'>,
+  ) {
     await validateCredentials(
       _.pick(userData, ['email', 'password']),
       this.userRepository,

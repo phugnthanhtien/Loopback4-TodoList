@@ -13,19 +13,23 @@ import {
   get,
   getModelSchemaRef,
   getWhereSchemaFor,
+  HttpErrors,
   param,
   patch,
   post,
   requestBody,
 } from '@loopback/rest';
 import {SecurityBindings} from '@loopback/security';
-import {ERole} from '../enum';
-import {Project, Task} from '../models';
+import set from 'lodash/set';
+import {ERole, ETaskStatus} from '../enum';
+import {Task} from '../models';
 import {
   ProjectRepository,
   ProjectUserRepository,
   TaskRepository,
+  UserRepository,
 } from '../repositories';
+import {checkUserIsInProject, verifyTaskId, verifyUserId} from '../services';
 
 @authenticate('jwt')
 export class ProjectTaskController {
@@ -38,6 +42,9 @@ export class ProjectTaskController {
 
     @repository(TaskRepository)
     protected taskRepository: TaskRepository,
+
+    @repository(UserRepository)
+    protected userRepository: UserRepository,
   ) {}
 
   @get('/projects/{id}/tasks', {
@@ -59,20 +66,24 @@ export class ProjectTaskController {
     @param.query.object('filter') filter?: Filter<Task>,
   ): Promise<Task[]> {
     const userId: string = currentUserProfile?.id;
-    const projectUser = this.projectUserRepository.find({
-      where: {userId: {like: userId}, projectId: {like: id}},
+    const projectUser = await this.projectUserRepository.find({
+      where: {userId, projectId: id},
     });
-    const userRole = (await projectUser)[0].role;
+    if (projectUser.length == 0) {
+      throw new HttpErrors.NotFound('You do not in this project');
+    }
+    const userRole = projectUser[0]?.role;
     if (userRole == ERole.ADMIN)
       return this.taskRepository.find({
-        where: {projectId: {like: id}},
+        where: {projectId: id},
       });
     else
       return this.taskRepository.find({
-        where: {projectId: {like: id}, isCreatedByAdmin: {like: false}},
+        where: {projectId: id, isCreatedByAdmin: false},
       });
   }
 
+  //create new Task
   @post('/projects/{id}/tasks', {
     responses: {
       '200': {
@@ -84,13 +95,22 @@ export class ProjectTaskController {
   async create(
     @inject(SecurityBindings.USER)
     currentUserProfile: User,
-    @param.path.string('id') id: typeof Project.prototype.id,
+    @param.path.string('id') id: string,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(Task, {
             title: 'NewTaskInProject',
-            exclude: ['id'],
+            exclude: [
+              'id',
+              'createdBy',
+              'updatedBy',
+              'projectId',
+              'createdAt',
+              'updatedAt',
+              'status',
+              'isCreatedByAdmin',
+            ],
             optional: ['projectId'],
           }),
         },
@@ -98,6 +118,35 @@ export class ProjectTaskController {
     })
     task: Omit<Task, 'id'>,
   ): Promise<Task> {
+    const userId: string = currentUserProfile?.id;
+    const projectUser = await checkUserIsInProject(
+      userId,
+      id,
+      this.projectUserRepository,
+    );
+    if (task.linkedTo) {
+      await verifyTaskId(task, this.taskRepository, id);
+    }
+    let isCreatedByAdmin = projectUser[0].role === ERole.ADMIN;
+    if (task.assignedTo) {
+      if (!isCreatedByAdmin) {
+        throw new HttpErrors.NotFound('Just Admin can assign task');
+      } else {
+        await verifyUserId(
+          task,
+          this.userRepository,
+          userId,
+          id,
+          this.projectUserRepository,
+        );
+      }
+    }
+    set(task, 'isCreatedByAdmin', isCreatedByAdmin);
+    set(task, 'createdBy', userId);
+    set(task, 'updatedBy', userId);
+    set(task, 'updatedAt', new Date());
+    set(task, 'status', ETaskStatus.TODO);
+
     return this.projectRepository.tasks(id).create(task);
   }
 
@@ -110,17 +159,56 @@ export class ProjectTaskController {
     },
   })
   async patch(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: User,
     @param.path.string('id') id: string,
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Task, {partial: true}),
+          schema: getModelSchemaRef(Task, {
+            title: 'Update task',
+            exclude: [
+              'id',
+              'createdBy',
+              'updatedBy',
+              'projectId',
+              'createdAt',
+              'updatedAt',
+              'isCreatedByAdmin',
+            ],
+          }),
         },
       },
     })
-    task: Partial<Task>,
+    task: Omit<Task, 'id'>,
     @param.query.object('where', getWhereSchemaFor(Task)) where?: Where<Task>,
   ): Promise<Count> {
+    const userId: string = currentUserProfile?.id;
+    const projectUser = await checkUserIsInProject(
+      userId,
+      id,
+      this.projectUserRepository,
+    );
+    if (task.linkedTo) {
+      await verifyTaskId(task, this.taskRepository, id);
+    }
+    let isCreatedByAdmin = projectUser[0].role === ERole.ADMIN;
+    if (task.assignedTo) {
+      if (!isCreatedByAdmin) {
+        throw new HttpErrors.NotFound('Just Admin can assign task');
+      } else {
+        await verifyUserId(
+          task,
+          this.userRepository,
+          userId,
+          id,
+          this.projectUserRepository,
+        );
+      }
+    }
+    set(task, 'updatedBy', userId);
+    set(task, 'updatedAt', new Date());
+    set(task, 'status', ETaskStatus.TODO);
     return this.projectRepository.tasks(id).patch(task, where);
   }
 

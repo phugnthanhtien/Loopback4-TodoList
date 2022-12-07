@@ -4,6 +4,7 @@ import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
+  Filter,
   FilterExcludingWhere,
   repository,
   Where,
@@ -24,6 +25,7 @@ import {ETaskStatus} from '../enum';
 import {Task} from '../models';
 import {TaskRepository} from '../repositories';
 
+//author -> admin
 @authenticate('jwt')
 export class TaskController {
   constructor(
@@ -40,44 +42,44 @@ export class TaskController {
     return this.taskRepository.count(where);
   }
 
-  // @get('/tasks')
-  // @response(200, {
-  //   description: 'Array of Task model instances',
-  //   content: {
-  //     'application/json': {
-  //       schema: {
-  //         type: 'array',
-  //         items: getModelSchemaRef(Task, {includeRelations: true}),
-  //       },
-  //     },
-  //   },
-  // })
-  // async find(
-  //   @inject(SecurityBindings.USER)
-  //   currentUserProfile: User,
-  //   @param.filter(Task) filter?: Filter<Task>,
-  // ): Promise<Task[]> {
-  //   return this.taskRepository.find(filter);
-  // }
+  @get('/tasks')
+  @response(200, {
+    description: 'Array of Task model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Task, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async find(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: User,
+    @param.filter(Task) filter?: Filter<Task>,
+  ): Promise<Task[]> {
+    return this.taskRepository.find(filter);
+  }
 
-  // @patch('/tasks')
-  // @response(200, {
-  //   description: 'Task PATCH success count',
-  //   content: {'application/json': {schema: CountSchema}},
-  // })
-  // async updateAll(
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(Task, {partial: true}),
-  //       },
-  //     },
-  //   })
-  //   task: Task,
-  //   @param.where(Task) where?: Where<Task>,
-  // ): Promise<Count> {
-  //   return this.taskRepository.updateAll(task, where);
-  // }
+  @patch('/tasks')
+  @response(200, {
+    description: 'Task PATCH success count',
+    content: {'application/json': {schema: CountSchema}},
+  })
+  async updateAll(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Task, {partial: true}),
+        },
+      },
+    })
+    task: Task,
+    @param.where(Task) where?: Where<Task>,
+  ): Promise<Count> {
+    return this.taskRepository.updateAll(task, where);
+  }
 
   @get('/tasks/{id}')
   @response(200, {

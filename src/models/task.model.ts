@@ -1,19 +1,19 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import { ETaskStatus } from '../enum';
-import {User} from './user.model';
+import {belongsTo, Entity, model, property} from '@loopback/repository';
+import {ETaskStatus} from '../enum';
 import {Project} from './project.model';
+import {User} from './user.model';
 
 @model({
   settings: {
-    strictObjectIDCoercion: true
-  }
+    strictObjectIDCoercion: true,
+  },
 })
 export class Task extends Entity {
   @property({
     type: 'string',
     id: true,
     generated: true,
-    mongodb: {dataType: 'ObjectId'}
+    mongodb: {dataType: 'ObjectId'},
   })
   id?: string;
 
@@ -25,7 +25,6 @@ export class Task extends Entity {
 
   @property({
     type: 'boolean',
-    required: true,
   })
   isCreatedByAdmin: boolean;
 
@@ -36,26 +35,29 @@ export class Task extends Entity {
 
   @property({
     type: 'date',
-    default: new Date()
+    default: new Date(),
   })
   createdAt?: string;
 
   @property({
     type: 'date',
-    default: new Date()
+    default: new Date(),
   })
   updatedAt?: string;
 
   @property({
     default: ETaskStatus.TODO,
     jsonSchema: {
-      enum: Object.values(ETaskStatus)
-    }
+      enum: Object.values(ETaskStatus),
+    },
   })
   status?: ETaskStatus;
 
   @belongsTo(() => User, {name: 'creator'})
   createdBy: string;
+
+  @belongsTo(() => User, {name: 'updater'})
+  updatedBy: string;
 
   @belongsTo(() => Project)
   projectId: string;

@@ -18,6 +18,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {ERole} from '../enum';
 import {ProjectUser} from '../models';
 import {ProjectUserRepository} from '../repositories';
 
@@ -46,6 +47,7 @@ export class ProjectUserController {
     })
     projectUser: Omit<ProjectUser, 'id'>,
   ): Promise<ProjectUser> {
+    if (!projectUser?.role) projectUser.role = ERole.USER;
     return this.projectUserRepository.create(projectUser);
   }
 
@@ -87,7 +89,10 @@ export class ProjectUserController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(ProjectUser, {partial: true}),
+          schema: getModelSchemaRef(ProjectUser, {
+            partial: true,
+            exclude: ['id'],
+          }),
         },
       },
     })

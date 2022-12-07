@@ -35,7 +35,7 @@ export class ProjectController {
     public projectUserRepository: ProjectUserRepository,
   ) {}
 
-  @post('/projects')
+  @post('/project')
   @response(200, {
     description: 'Project model instance',
     content: {'application/json': {schema: getModelSchemaRef(Project)}},
@@ -48,7 +48,7 @@ export class ProjectController {
         'application/json': {
           schema: getModelSchemaRef(Project, {
             title: 'NewProject',
-            exclude: ['id'],
+            exclude: ['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'],
           }),
         },
       },
