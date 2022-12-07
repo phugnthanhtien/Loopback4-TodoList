@@ -29,7 +29,7 @@ import {
   TaskRepository,
   UserRepository,
 } from '../repositories';
-import {checkUserIsInProject, verifyTaskId, verifyUserId} from '../services';
+import {getProjectUser, verifyTaskId, verifyUserId} from '../services';
 
 @authenticate('jwt')
 export class ProjectTaskController {
@@ -119,7 +119,7 @@ export class ProjectTaskController {
     task: Omit<Task, 'id'>,
   ): Promise<Task> {
     const userId: string = currentUserProfile?.id;
-    const projectUser = await checkUserIsInProject(
+    const projectUser = await getProjectUser(
       userId,
       id,
       this.projectUserRepository,
@@ -139,6 +139,7 @@ export class ProjectTaskController {
           id,
           this.projectUserRepository,
         );
+        await this.projectUserRepository.create(projectUser[0]);
       }
     }
     set(task, 'isCreatedByAdmin', isCreatedByAdmin);
@@ -184,7 +185,7 @@ export class ProjectTaskController {
     @param.query.object('where', getWhereSchemaFor(Task)) where?: Where<Task>,
   ): Promise<Count> {
     const userId: string = currentUserProfile?.id;
-    const projectUser = await checkUserIsInProject(
+    const projectUser = await getProjectUser(
       userId,
       id,
       this.projectUserRepository,

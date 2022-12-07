@@ -7,6 +7,7 @@ import {
 } from '@loopback/repository';
 import {Task} from './task.model';
 import {User} from './user.model';
+import {ProjectUser} from './project-user.model';
 
 @model({
   settings: {
@@ -53,6 +54,9 @@ export class Project extends Entity {
 
   @hasMany(() => Task)
   tasks: Task[];
+
+  @hasMany(() => ProjectUser)
+  projectUsers: ProjectUser[];
 
   constructor(data?: Partial<Project>) {
     super(data);

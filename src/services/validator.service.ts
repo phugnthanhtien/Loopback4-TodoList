@@ -29,7 +29,7 @@ export async function validateCredentials(
     );
   }
 }
-export async function checkUserIsInProject(
+export async function getProjectUser(
   userId: string,
   projectId: string,
   projectUserRepository: ProjectUserRepository,
@@ -38,7 +38,7 @@ export async function checkUserIsInProject(
     where: {userId, projectId},
   });
   if (projectUser.length == 0) {
-    throw new HttpErrors.NotFound('You do not in this project');
+    throw new HttpErrors.Unauthorized('You do not in this project');
   }
   return projectUser;
 }
@@ -50,7 +50,7 @@ export async function verifyTaskId(
 ) {
   const foundedLinkedTask = await taskRepository.findById(task.linkedTo);
   if (foundedLinkedTask.projectId === projectId) {
-    throw new HttpErrors.NotFound(
+    throw new HttpErrors.Unauthorized(
       'The task is linked to must be at the same project',
     );
   }
