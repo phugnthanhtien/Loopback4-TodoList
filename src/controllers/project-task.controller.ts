@@ -165,22 +165,11 @@ export class ProjectTaskController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Task, {
-            title: 'Update task',
-            exclude: [
-              'id',
-              'createdBy',
-              'updatedBy',
-              'projectId',
-              'createdAt',
-              'updatedAt',
-              'isCreatedByAdmin',
-            ],
-          }),
+          schema: getModelSchemaRef(Task, {partial: true}),
         },
       },
     })
-    task: Omit<Task, 'id'>,
+    task: Task,
     @param.query.object('where', getWhereSchemaFor(Task)) where?: Where<Task>,
   ): Promise<Count> {
     const userId: string = currentUserProfile?.id;
@@ -223,8 +212,8 @@ export class ProjectTaskController {
   async patchTask(
     @inject(SecurityBindings.USER)
     currentUserProfile: User,
-    @param.path.string('id') projectId: string,
-    @param.path.string('id') taskId: string,
+    @param.path.string('projectId') projectId: string,
+    @param.path.string('taskId') taskId: string,
     @requestBody({
       content: {
         'application/json': {
