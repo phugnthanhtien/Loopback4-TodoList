@@ -37,7 +37,6 @@ export async function getProjectUser(
   const projectUser = await projectUserRepository.findOne({
     where: {userId, projectId},
   });
-  console.log(projectUser);
   if (!projectUser) {
     throw new HttpErrors.Unauthorized('You do not in this project');
   }
