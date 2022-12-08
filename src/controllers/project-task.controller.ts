@@ -212,6 +212,68 @@ export class ProjectTaskController {
     return this.projectRepository.tasks(id).patch(task, where);
   }
 
+  @patch('/projects/{projectId}/tasks/{taskId}', {
+    responses: {
+      '200': {
+        description: 'Project.Task PATCH success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async patchTask(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: User,
+    @param.path.string('id') projectId: string,
+    @param.path.string('id') taskId: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Task, {
+            title: 'Update task',
+            exclude: [
+              'id',
+              'createdBy',
+              'updatedBy',
+              'projectId',
+              'createdAt',
+              'updatedAt',
+              'isCreatedByAdmin',
+            ],
+          }),
+        },
+      },
+    })
+    task: Omit<Task, 'id'>,
+  ): Promise<void> {
+    const userId: string = currentUserProfile?.id;
+    const projectUser = await getProjectUser(
+      userId,
+      projectId,
+      this.projectUserRepository,
+    );
+    if (task.linkedTo) {
+      await verifyTaskId(task, this.taskRepository, projectId);
+    }
+    let isCreatedByAdmin = projectUser.role === ERole.ADMIN;
+    if (task.assignedTo) {
+      if (!isCreatedByAdmin) {
+        throw new HttpErrors.NotFound('Just Admin can assign task');
+      } else {
+        await verifyUserId(
+          task,
+          this.userRepository,
+          userId,
+          projectId,
+          this.projectUserRepository,
+        );
+      }
+    }
+    set(task, 'updatedBy', userId);
+    set(task, 'updatedAt', new Date());
+    set(task, 'status', ETaskStatus.TODO);
+    await this.taskRepository.updateById(taskId, task);
+  }
+
   @del('/projects/{id}/tasks', {
     responses: {
       '200': {
