@@ -64,12 +64,12 @@ export async function verifyUserId(
   projectId: string,
   projectUserRepository: ProjectUserRepository,
 ) {
-  // const foundedProjectUser = await projectUserRepository.find({
-  //   where: {
-  //     userId,
-  //     projectId,
-  //   },
-  // });
+  const foundedProjectUser = await projectUserRepository.findOne({
+    where: {
+      userId,
+      projectId,
+    },
+  });
   const foundedUser = await userRepository.findById(task.assignedTo);
   if (!foundedUser) {
     throw new HttpErrors.NotFound('User assigned to is no valid');

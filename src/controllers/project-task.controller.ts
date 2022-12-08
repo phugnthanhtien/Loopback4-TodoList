@@ -139,10 +139,6 @@ export class ProjectTaskController {
           id,
           this.projectUserRepository,
         );
-        await this.projectUserRepository.create({
-          userId: task.assignedTo,
-          projectId: id,
-        });
       }
     }
     set(task, 'isCreatedByAdmin', isCreatedByAdmin);
