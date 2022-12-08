@@ -89,7 +89,17 @@ export class Authentication {
     },
   })
   async login(
-    @requestBody() credentials: Credentials,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(User, {
+            title: 'Login',
+            exclude: ['id', 'createdAt', 'fullName', 'updatedAt'],
+          }),
+        },
+      },
+    })
+    credentials: Credentials,
   ): Promise<{token: string}> {
     const user = await this.userService.verifyCredentials(credentials);
     const userProfile = await this.userService.convertToUserProfile(user);
