@@ -240,10 +240,11 @@ export class ProjectTaskController {
       projectId,
       this.projectUserRepository,
     );
+    console.log(task.linkedTo);
     if (task.linkedTo) {
       await verifyTaskId(task, this.taskRepository, projectId);
     }
-    let isCreatedByAdmin = projectUser.role === ERole.ADMIN;
+    let isCreatedByAdmin = projectUser?.role === ERole.ADMIN;
     if (task.assignedTo) {
       if (!isCreatedByAdmin) {
         throw new HttpErrors.NotFound('Just Admin can assign task');
