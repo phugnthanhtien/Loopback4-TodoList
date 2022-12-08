@@ -49,7 +49,8 @@ export async function verifyTaskId(
   projectId: string,
 ) {
   const foundedLinkedTask = await taskRepository.findById(task.linkedTo);
-  if (foundedLinkedTask.projectId === projectId) {
+
+  if (foundedLinkedTask.projectId.toString() !== projectId) {
     throw new HttpErrors.Unauthorized(
       'The task is linked to must be at the same project',
     );
