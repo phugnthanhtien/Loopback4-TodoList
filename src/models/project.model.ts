@@ -5,21 +5,16 @@ import {
   model,
   property,
 } from '@loopback/repository';
+import {ProjectUser} from './project-user.model';
 import {Task} from './task.model';
 import {User} from './user.model';
-import {ProjectUser} from './project-user.model';
 
-@model({
-  settings: {
-    strictObjectIDCoercion: true,
-  },
-})
+@model()
 export class Project extends Entity {
   @property({
     type: 'string',
     id: true,
     generated: true,
-    mongodb: {dataType: 'ObjectId'},
   })
   id?: string;
 

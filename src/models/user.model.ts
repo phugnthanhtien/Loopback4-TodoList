@@ -1,15 +1,11 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {Task} from './task.model';
+import {Entity, model, property} from '@loopback/repository';
 
-@model({settings: {
-  strictObjectIDCoercion: true
-}})
+@model()
 export class User extends Entity {
   @property({
     type: 'string',
     id: true,
     generated: true,
-    mongodb: {dataType: 'ObjectId'}
   })
   id?: string;
 
@@ -32,13 +28,13 @@ export class User extends Entity {
 
   @property({
     type: 'date',
-    default: new Date()
+    default: new Date(),
   })
   createdAt?: string;
 
   @property({
     type: 'date',
-    default: new Date()
+    default: new Date(),
   })
   updatedAt?: string;
 

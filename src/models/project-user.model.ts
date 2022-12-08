@@ -3,17 +3,12 @@ import {ERole} from '../enum';
 import {Project} from './project.model';
 import {User} from './user.model';
 
-@model({
-  settings: {
-    strictObjectIDCoercion: true,
-  },
-})
+@model()
 export class ProjectUser extends Entity {
   @property({
     type: 'string',
     id: true,
     generated: true,
-    mongodb: {dataType: 'ObjectId'},
   })
   id?: string;
 

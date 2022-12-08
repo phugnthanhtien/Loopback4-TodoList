@@ -66,13 +66,13 @@ export class ProjectTaskController {
     @param.query.object('filter') filter?: Filter<Task>,
   ): Promise<Task[]> {
     const userId: string = currentUserProfile?.id;
-    const projectUser = await this.projectUserRepository.find({
+    const projectUser = await this.projectUserRepository.findOne({
       where: {userId, projectId: id},
     });
-    if (projectUser.length == 0) {
+    if (!projectUser) {
       throw new HttpErrors.NotFound('You do not in this project');
     }
-    const userRole = projectUser[0]?.role;
+    const userRole = projectUser?.role;
     if (userRole == ERole.ADMIN)
       return this.taskRepository.find({
         where: {projectId: id},
@@ -127,7 +127,7 @@ export class ProjectTaskController {
     if (task.linkedTo) {
       await verifyTaskId(task, this.taskRepository, id);
     }
-    let isCreatedByAdmin = projectUser[0].role === ERole.ADMIN;
+    let isCreatedByAdmin = projectUser?.role === ERole.ADMIN;
     if (task.assignedTo) {
       if (!isCreatedByAdmin) {
         throw new HttpErrors.NotFound('Just Admin can assign task');
@@ -139,7 +139,10 @@ export class ProjectTaskController {
           id,
           this.projectUserRepository,
         );
-        await this.projectUserRepository.create(projectUser[0]);
+        await this.projectUserRepository.create({
+          userId: task.assignedTo,
+          projectId: id,
+        });
       }
     }
     set(task, 'isCreatedByAdmin', isCreatedByAdmin);
@@ -193,7 +196,7 @@ export class ProjectTaskController {
     if (task.linkedTo) {
       await verifyTaskId(task, this.taskRepository, id);
     }
-    let isCreatedByAdmin = projectUser[0].role === ERole.ADMIN;
+    let isCreatedByAdmin = projectUser.role === ERole.ADMIN;
     if (task.assignedTo) {
       if (!isCreatedByAdmin) {
         throw new HttpErrors.NotFound('Just Admin can assign task');

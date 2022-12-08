@@ -1,11 +1,21 @@
 import {authenticate} from '@loopback/authentication';
 import {User, UserRepository} from '@loopback/authentication-jwt';
 import {inject} from '@loopback/core';
-import {repository} from '@loopback/repository';
 import {
+  Count,
+  CountSchema,
+  Filter,
+  repository,
+  Where,
+} from '@loopback/repository';
+import {
+  del,
+  get,
   getModelSchemaRef,
+  getWhereSchemaFor,
   HttpErrors,
   param,
+  patch,
   post,
   requestBody,
 } from '@loopback/rest';
@@ -28,24 +38,24 @@ export class ProjectProjectUserController {
     protected userRepository: UserRepository,
   ) {}
 
-  // @get('/projects/{id}/project-users', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Array of Project has many ProjectUser',
-  //       content: {
-  //         'application/json': {
-  //           schema: {type: 'array', items: getModelSchemaRef(ProjectUser)},
-  //         },
-  //       },
-  //     },
-  //   },
-  // })
-  // async find(
-  //   @param.path.string('id') id: string,
-  //   @param.query.object('filter') filter?: Filter<ProjectUser>,
-  // ): Promise<ProjectUser[]> {
-  //   return this.projectRepository.projectUsers(id).find(filter);
-  // }
+  @get('/projects/{id}/project-users', {
+    responses: {
+      '200': {
+        description: 'Array of Project has many ProjectUser',
+        content: {
+          'application/json': {
+            schema: {type: 'array', items: getModelSchemaRef(ProjectUser)},
+          },
+        },
+      },
+    },
+  })
+  async find(
+    @param.path.string('id') id: string,
+    @param.query.object('filter') filter?: Filter<ProjectUser>,
+  ): Promise<ProjectUser[]> {
+    return this.projectRepository.projectUsers(id).find(filter);
+  }
 
   @post('/projects/{id}/project-users', {
     responses: {
@@ -63,7 +73,7 @@ export class ProjectProjectUserController {
       content: {
         'application/json': {
           schema: getModelSchemaRef(ProjectUser, {
-            title: 'NewProjectUserInProject',
+            title: 'AssignToProject',
             exclude: ['id', 'projectId'],
             optional: ['projectId'],
           }),
@@ -83,48 +93,50 @@ export class ProjectProjectUserController {
       this.projectUserRepository,
     );
 
-    if (projectUserCard[0].role !== ERole.ADMIN) {
+    if (projectUserCard?.role !== ERole.ADMIN) {
       throw new HttpErrors.Unauthorized('You must be admin to do this');
     }
     projectUser.role = projectUser.role ? projectUser.role : ERole.USER;
     return this.projectRepository.projectUsers(id).create(projectUser);
   }
 
-  // @patch('/projects/{id}/project-users', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Project.ProjectUser PATCH success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async patch(
-  //   @param.path.string('id') id: string,
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(ProjectUser, {partial: true}),
-  //       },
-  //     },
-  //   })
-  //   projectUser: Partial<ProjectUser>,
-  //   @param.query.object('where', getWhereSchemaFor(ProjectUser)) where?: Where<ProjectUser>,
-  // ): Promise<Count> {
-  //   return this.projectRepository.projectUsers(id).patch(projectUser, where);
-  // }
+  @patch('/projects/{id}/project-users', {
+    responses: {
+      '200': {
+        description: 'Project.ProjectUser PATCH success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async patch(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(ProjectUser, {partial: true}),
+        },
+      },
+    })
+    projectUser: Partial<ProjectUser>,
+    @param.query.object('where', getWhereSchemaFor(ProjectUser))
+    where?: Where<ProjectUser>,
+  ): Promise<Count> {
+    return this.projectRepository.projectUsers(id).patch(projectUser, where);
+  }
 
-  // @del('/projects/{id}/project-users', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Project.ProjectUser DELETE success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async delete(
-  //   @param.path.string('id') id: string,
-  //   @param.query.object('where', getWhereSchemaFor(ProjectUser)) where?: Where<ProjectUser>,
-  // ): Promise<Count> {
-  //   return this.projectRepository.projectUsers(id).delete(where);
-  // }
+  @del('/projects/{id}/project-users', {
+    responses: {
+      '200': {
+        description: 'Project.ProjectUser DELETE success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async delete(
+    @param.path.string('id') id: string,
+    @param.query.object('where', getWhereSchemaFor(ProjectUser))
+    where?: Where<ProjectUser>,
+  ): Promise<Count> {
+    return this.projectRepository.projectUsers(id).delete(where);
+  }
 }

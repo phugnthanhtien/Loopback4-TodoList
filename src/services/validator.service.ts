@@ -34,10 +34,11 @@ export async function getProjectUser(
   projectId: string,
   projectUserRepository: ProjectUserRepository,
 ) {
-  const projectUser = await projectUserRepository.find({
+  const projectUser = await projectUserRepository.findOne({
     where: {userId, projectId},
   });
-  if (projectUser.length == 0) {
+  console.log(projectUser);
+  if (!projectUser) {
     throw new HttpErrors.Unauthorized('You do not in this project');
   }
   return projectUser;
@@ -63,12 +64,12 @@ export async function verifyUserId(
   projectId: string,
   projectUserRepository: ProjectUserRepository,
 ) {
-  const foundedProjectUser = await projectUserRepository.find({
-    where: {
-      userId,
-      projectId,
-    },
-  });
+  // const foundedProjectUser = await projectUserRepository.find({
+  //   where: {
+  //     userId,
+  //     projectId,
+  //   },
+  // });
   const foundedUser = await userRepository.findById(task.assignedTo);
   if (!foundedUser) {
     throw new HttpErrors.NotFound('User assigned to is no valid');
