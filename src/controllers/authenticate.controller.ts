@@ -1,11 +1,6 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {
-  getJsonSchemaRef,
-  getModelSchemaRef,
-  post,
-  requestBody,
-} from '@loopback/rest';
+import {getModelSchemaRef, post, requestBody} from '@loopback/rest';
 import * as _ from 'lodash';
 import {
   PasswordHasherBindings,
@@ -39,7 +34,11 @@ export class Authentication {
       '200': {
         description: 'User',
         content: {
-          schema: getJsonSchemaRef(User),
+          'application/json': {
+            schema: {
+              'x-ts-type': User,
+            },
+          },
         },
       },
     },
